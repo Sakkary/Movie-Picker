@@ -1,7 +1,7 @@
 import type { DiscoverFilters } from "./mood";
 
-const TMDB_BASE_URL = "https://api.themoviedb.org/3"\;
-const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p"\;
+const TMDB_BASE_URL = "https://api.themoviedb.org/3";
+const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p";
 
 export type TmdbMovie = {
   id: number;
