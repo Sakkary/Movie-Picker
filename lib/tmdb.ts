@@ -31,7 +31,7 @@ export type TmdbVideo = {
 const getApiKey = () => {
   const key = process.env.TMDB_API_KEY ?? process.env.NEXT_PUBLIC_TMDB_API_KEY;
   if (!key) {
-    throw new Error("TMDB API key is not configured.");
+    throw new Error("TMDB API key is not configured. Set NEXT_PUBLIC_TMDB_API_KEY for GitHub Pages.");
   }
   return key;
 };

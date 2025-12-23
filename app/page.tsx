@@ -161,7 +161,7 @@ function HomePageContent() {
   return (
     <main className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-12 sm:px-6 lg:px-8">
       <header className="text-center space-y-4">
-        <p className="text-sm uppercase tracking-[0.4em] text-aurora">MoodFlix</p>
+        <p className="text-sm uppercase tracking-[0.4em] text-aurora">MoviePicker</p>
         <h1 className="text-3xl font-semibold text-white sm:text-5xl">
           Discover movies that match exactly how you feel.
         </h1>
