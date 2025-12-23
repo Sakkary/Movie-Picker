@@ -6,7 +6,7 @@ import MoodControls from "@/components/MoodControls";
 import MovieGrid from "@/components/MovieGrid";
 import MovieModal from "@/components/MovieModal";
 import { genreNameMap, moodToFilters, relaxFilters, type MoodInput } from "@/lib/mood";
-import { discoverMovies, fetchMovieDetails } from "@/lib/tmdb";
+import { discoverMovies, fetchMovieDetails, fetchPopularMovies } from "@/lib/tmdb";
 import type { MovieResult } from "@/lib/types";
 
 const defaultMood: MoodInput = {
@@ -100,6 +100,13 @@ const fetchRecommendations = async (mood: MoodInput) => {
     const relaxed = relaxFilters(filters);
     for (const page of pages) {
       const pageResults = await discoverMovies(relaxed, page);
+      results = results.concat(pageResults.results);
+    }
+  }
+
+  if (results.length < 12) {
+    for (const page of pages) {
+      const pageResults = await fetchPopularMovies(page);
       results = results.concat(pageResults.results);
     }
   }

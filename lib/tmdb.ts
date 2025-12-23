@@ -86,6 +86,10 @@ export const fetchMovieDetails = async (movieId: number): Promise<TmdbMovieDetai
   return fetchJson<TmdbMovieDetails>(`/movie/${movieId}`, {});
 };
 
+export const fetchPopularMovies = async (page: number) => {
+  return fetchJson<{ results: TmdbMovie[] }>("/movie/popular", { page });
+};
+
 export const fetchMovieVideos = async (movieId: number) => {
   return fetchJson<{ results: TmdbVideo[] }>(`/movie/${movieId}/videos`, {});
 };
