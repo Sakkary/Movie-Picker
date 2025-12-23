@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import MoodControls from "@/components/MoodControls";
 import MovieGrid from "@/components/MovieGrid";
@@ -38,7 +38,7 @@ const buildParams = (mood: MoodInput) => {
   return params;
 };
 
-export default function HomePage() {
+function HomePageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -119,5 +119,13 @@ export default function HomePage() {
 
       <MovieModal movie={selected} onClose={() => setSelected(null)} />
     </main>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+      <HomePageContent />
+    </Suspense>
   );
 }
