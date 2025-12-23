@@ -36,7 +36,7 @@ const getApiKey = () => {
   return key;
 };
 
-const buildQuery = (params: Record<string, string | number | undefined>) => {
+const buildQuery = (params: Record<string, string | number | boolean | undefined>) => {
   const query = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== "") {
@@ -46,7 +46,7 @@ const buildQuery = (params: Record<string, string | number | undefined>) => {
   return query.toString();
 };
 
-const fetchJson = async <T>(path: string, params: Record<string, string | number | undefined>) => {
+const fetchJson = async <T>(path: string, params: Record<string, string | number | boolean | undefined>) => {
   const apiKey = getApiKey();
   const query = buildQuery({ ...params, api_key: apiKey });
   const response = await fetch(`${TMDB_BASE_URL}${path}?${query}`, {
@@ -64,7 +64,7 @@ const fetchJson = async <T>(path: string, params: Record<string, string | number
 };
 
 export const discoverMovies = async (filters: DiscoverFilters, page: number) => {
-  const params: Record<string, string | number | undefined> = {
+  const params: Record<string, string | number | boolean | undefined> = {
     include_adult: false,
     include_video: false,
     sort_by: filters.sortBy,
