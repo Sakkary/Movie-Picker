@@ -30,7 +30,7 @@ const genreIds = {
   Romance: 10749,
   Thriller: 53,
   War: 10752
-};
+} as const;
 
 const bucket = (value: number) => {
   if (value <= 35) return "low";
@@ -47,20 +47,20 @@ export const moodToFilters = (mood: MoodInput): DiscoverFilters => {
   const withoutGenres = new Set<number>();
 
   if (chillBucket === "low") {
-    ["Drama", "Romance", "Animation", "Family"].forEach((name) => withGenres.add(genreIds[name]));
+    (["Drama", "Romance", "Animation", "Family"] as const).forEach((name) => withGenres.add(genreIds[name]));
     withoutGenres.add(genreIds.War);
   } else if (chillBucket === "mid") {
-    ["Drama", "Comedy", "Adventure"].forEach((name) => withGenres.add(genreIds[name]));
+    (["Drama", "Comedy", "Adventure"] as const).forEach((name) => withGenres.add(genreIds[name]));
   } else {
-    ["Action", "Thriller", "Crime", "War"].forEach((name) => withGenres.add(genreIds[name]));
+    (["Action", "Thriller", "Crime", "War"] as const).forEach((name) => withGenres.add(genreIds[name]));
   }
 
   if (happyBucket === "low") {
-    ["Comedy", "Romance", "Family", "Animation"].forEach((name) => withGenres.add(genreIds[name]));
+    (["Comedy", "Romance", "Family", "Animation"] as const).forEach((name) => withGenres.add(genreIds[name]));
   } else if (happyBucket === "mid") {
-    ["Adventure", "Drama", "Mystery"].forEach((name) => withGenres.add(genreIds[name]));
+    (["Adventure", "Drama", "Mystery"] as const).forEach((name) => withGenres.add(genreIds[name]));
   } else {
-    ["Thriller", "Horror", "Crime", "Mystery"].forEach((name) => withGenres.add(genreIds[name]));
+    (["Thriller", "Horror", "Crime", "Mystery"] as const).forEach((name) => withGenres.add(genreIds[name]));
   }
 
   let runtimeGte: number | undefined;

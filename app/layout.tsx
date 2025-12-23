@@ -2,7 +2,7 @@ import "./globals.css";
 import type { ReactNode } from "react";
 
 export const metadata = {
-  title: "MoodFlix · Mood-Based Movie Picker",
+  title: "MoviePicker · Mood-Based Movie Picker",
   description: "Discover movies that match your mood with MoodFlix."
 };
 
