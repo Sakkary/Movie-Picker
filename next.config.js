@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
+  basePath: "/Movie-Picker",
+  assetPrefix: "/Movie-Picker/",
   trailingSlash: true,
   images: {
     unoptimized: true,
