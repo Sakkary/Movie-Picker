@@ -5,7 +5,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import MoodControls from "@/components/MoodControls";
 import MovieGrid from "@/components/MovieGrid";
 import MovieModal from "@/components/MovieModal";
-import type { MoodInput } from "@/lib/mood";
+import { genreNameMap, moodToFilters, relaxFilters, type MoodInput } from "@/lib/mood";
+import { discoverMovies, fetchMovieDetails } from "@/lib/tmdb";
 import type { MovieResult } from "@/lib/types";
 
 const defaultMood: MoodInput = {
@@ -36,6 +37,76 @@ const buildParams = (mood: MoodInput) => {
     params.set("family", "1");
   }
   return params;
+};
+
+const pickDiverse = (movies: Awaited<ReturnType<typeof discoverMovies>>["results"]) => {
+  const withPoster = movies.filter((movie) => movie.poster_path || movie.backdrop_path);
+  const withoutPoster = movies.filter((movie) => !movie.poster_path && !movie.backdrop_path);
+  const sorted = [...withPoster, ...withoutPoster];
+  const picked: typeof movies = [];
+  const usedGenres = new Set<number>();
+
+  for (const movie of sorted) {
+    const primary = movie.genre_ids[0];
+    if (primary && !usedGenres.has(primary)) {
+      picked.push(movie);
+      usedGenres.add(primary);
+    }
+    if (picked.length === 12) return picked;
+  }
+
+  for (const movie of sorted) {
+    if (!picked.find((item) => item.id === movie.id)) {
+      picked.push(movie);
+    }
+    if (picked.length === 12) break;
+  }
+
+  return picked;
+};
+
+const enrichMovies = async (movies: Awaited<ReturnType<typeof discoverMovies>>["results"]) => {
+  const detailResults = await Promise.all(
+    movies.map(async (movie) => {
+      try {
+        const details = await fetchMovieDetails(movie.id);
+        return {
+          ...movie,
+          runtime: details.runtime ?? undefined
+        };
+      } catch (error) {
+        return movie;
+      }
+    })
+  );
+
+  return detailResults.map((movie) => ({
+    ...movie,
+    genres: movie.genre_ids.map((id) => genreNameMap[id]).filter(Boolean)
+  }));
+};
+
+const fetchRecommendations = async (mood: MoodInput) => {
+  const filters = moodToFilters(mood);
+  const pages = [1, 2, 3];
+  let results: Awaited<ReturnType<typeof discoverMovies>>["results"] = [];
+
+  for (const page of pages) {
+    const pageResults = await discoverMovies(filters, page);
+    results = results.concat(pageResults.results);
+  }
+
+  if (results.length === 0) {
+    const relaxed = relaxFilters(filters);
+    for (const page of pages) {
+      const pageResults = await discoverMovies(relaxed, page);
+      results = results.concat(pageResults.results);
+    }
+  }
+
+  const unique = Array.from(new Map(results.map((movie) => [movie.id, movie])).values());
+  const selected = pickDiverse(unique).slice(0, 12);
+  return enrichMovies(selected);
 };
 
 function HomePageContent() {
@@ -71,13 +142,8 @@ function HomePageContent() {
     setLoading(true);
     setError(null);
     try {
-      const params = buildParams(mood);
-      const response = await fetch(`/api/recommend?${params.toString()}`);
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error ?? "Unable to load recommendations.");
-      }
-      setMovies(data.results as MovieResult[]);
+      const results = await fetchRecommendations(mood);
+      setMovies(results as MovieResult[]);
     } catch (fetchError) {
       const message = fetchError instanceof Error ? fetchError.message : "Unable to load recommendations.";
       setError(message);
