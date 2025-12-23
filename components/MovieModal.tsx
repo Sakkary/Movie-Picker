@@ -3,11 +3,14 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import type { MovieResult } from "@/lib/types";
-import { getBackdropUrl } from "@/lib/tmdb";
+import { fetchMovieVideos, getBackdropUrl } from "@/lib/tmdb";
 
-type TrailerResponse = {
-  trailer: { key: string; name: string } | null;
-  error?: string;
+type Trailer = { key: string; name: string } | null;
+
+const pickTrailer = (videos: Awaited<ReturnType<typeof fetchMovieVideos>>["results"]) => {
+  const youtube = videos.filter((video) => video.site === "YouTube");
+  const preferred = youtube.find((video) => video.type === "Trailer") ?? youtube[0];
+  return preferred ?? null;
 };
 
 type MovieModalProps = {
@@ -16,7 +19,7 @@ type MovieModalProps = {
 };
 
 export default function MovieModal({ movie, onClose }: MovieModalProps) {
-  const [trailer, setTrailer] = useState<TrailerResponse["trailer"]>(null);
+  const [trailer, setTrailer] = useState<Trailer>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,12 +30,8 @@ export default function MovieModal({ movie, onClose }: MovieModalProps) {
       setError(null);
       setTrailer(null);
       try {
-        const response = await fetch(`/api/trailer?id=${movie.id}`);
-        const data = (await response.json()) as TrailerResponse;
-        if (!response.ok) {
-          throw new Error(data.error ?? "Unable to load trailer.");
-        }
-        setTrailer(data.trailer);
+        const { results } = await fetchMovieVideos(movie.id);
+        setTrailer(pickTrailer(results));
       } catch (fetchError) {
         const message = fetchError instanceof Error ? fetchError.message : "Unable to load trailer.";
         setError(message);
