@@ -159,9 +159,14 @@ function HomePageContent() {
     }
   }, [mood]);
 
+  // Debounce fetchMovies by 200ms to avoid excessive API calls during rapid slider changes.
+  // Each slider change clears the previous timeout, so requests only fire after user stops adjusting.
   useEffect(() => {
     if (searchParams.size > 0) {
-      fetchMovies();
+      const timeoutId = setTimeout(() => {
+        fetchMovies();
+      }, 200);
+      return () => clearTimeout(timeoutId);
     }
   }, [fetchMovies, searchParams.size]);
 
